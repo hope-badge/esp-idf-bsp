@@ -1,2 +1,9 @@
-# esp-idf-bsp
-ESP-IDF badge board support package
+# HOPE Badge BSP Project
+
+## Overview
+
+## BSPs
+
+## Components
+
+## Examples

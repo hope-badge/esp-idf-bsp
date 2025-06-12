@@ -1,0 +1,11 @@
+
+version: "0.0.1"
+description: Vibrator component for the HOPE badge
+url: https://github.com/
+
+tags:
+  - motor
+  - vibrator
+
+dependencies:
+  idf: ">=5.4"

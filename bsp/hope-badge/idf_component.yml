@@ -1,0 +1,45 @@
+
+version: "0.0.1"
+description: HOPE Badge Board Support Package (BSP)
+url: https://github.com/hope-badge/esp-idf-bsp
+repository: https://github.com/hope-badge/esp-idf-bsp.git
+issues: https://github.com/hope-badge/esp-idf-bsp/issues
+maintainers:
+  - "Pedro Minatel <pminatel@gmail.com>"
+
+targets:
+  - esp32c3
+
+tags:
+  - bsp
+  - badge
+
+dependencies:
+  idf: ">=5.3"
+
+  vibrator:
+    version: '*'
+    override_path: ../../components/vibrator
+
+  button:
+    version: "^4"
+    public: true
+
+  led_strip:
+    version: "^3"
+    public: true
+
+  max17048:
+    version: "^0.1.1"
+    public: true
+
+  i2c_bus:
+    version: "^1.1.*"
+    public: true
+
+  ir_learn:
+    version: "^1.0.0"
+    public: true
+
+examples:
+  - path: ../../examples/basic

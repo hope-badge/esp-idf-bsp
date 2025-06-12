@@ -1,0 +1,276 @@
+menu "HOPE Badge BSP Configuration"
+
+    config BSP_ERROR_CHECK
+        bool "Enable error check in BSP"
+        default y
+        help
+            Error check assert the application before returning the error code.
+ 
+    menu "Badge HW version"
+        choice BSP_HW_VERSION
+            prompt "HW version"
+            default BSP_HW_VERSION_0_8_15
+            help
+                Select the hardware version of the HOPE badge.
+            config BSP_HW_VERSION_0_8_15
+                bool "HOPE badge HW version 0.8.15"
+                default y
+            config BSP_HW_VERSION_0_8_16
+                bool "HOPE badge HW version 0.8.16"
+            config BSP_HW_VERSION_0_8_17
+                bool "HOPE badge HW version 0.8.17"
+        endchoice
+    endmenu
+
+    menu "I2C bus configuration"
+        menu "Pins"
+            config BSP_I2C_GPIO_SCL
+                int "I2C GPIO SCL"
+                default 21
+                range -1 ENV_GPIO_OUT_RANGE_MAX
+                help
+                    The GPIO pin for I2C SCL.
+            config BSP_I2C_GPIO_SDA
+                int "I2C GPIO SDA"
+                default 20
+                range -1 ENV_GPIO_OUT_RANGE_MAX
+                help
+                    The GPIO pin for I2C SDA.
+            config BSP_I2C_PULLUP
+                bool "I2C GPIO PULL UP"
+                default n
+                help
+                    Enable I2C bus pull up.            
+        endmenu
+
+    config BSP_I2C_NUM
+            int "I2C peripheral index"
+            default 0
+            range 0 1
+            help
+                ESP32-C3 has one I2C peripheral.
+
+        config BSP_I2C_FAST_MODE
+            bool "Enable I2C fast mode"
+            default y
+            help
+                I2C has two speed modes: normal (100kHz) and fast (400kHz).
+
+        config BSP_I2C_CLK_SPEED_HZ
+            int
+            default 400000 if BSP_I2C_FAST_MODE
+            default 100000
+    endmenu
+
+    menu "Buttons"
+            
+        menu "Button 1"
+
+            config BSP_BUTTON_1_GPIO
+                int 
+                prompt "Button 1 GPIO"
+                default 10
+                range -1 ENV_GPIO_IN_RANGE_MAX
+                help
+                    The GPIO pin for button 1.
+            config BSP_BUTTON_1_LEVEL
+                int
+                prompt "Button 1 Active Level"
+                default 0
+                range 0 1
+                help
+                    The active level for button 1.
+
+        endmenu
+
+        menu "Button 2"
+
+            config BSP_BUTTON_2_GPIO
+                int 
+                prompt "Button 2 GPIO"
+                default 9
+                range -1 ENV_GPIO_IN_RANGE_MAX
+                help
+                    The GPIO pin for button 2.
+            config BSP_BUTTON_2_LEVEL
+                int
+                prompt "Button 2 Active Level"
+                default 0
+                range 0 1
+                help
+                    The active level for button 2.
+
+        endmenu
+
+        menu "Button 3"
+
+            config BSP_BUTTON_3_GPIO
+                int 
+                prompt "Button 3 GPIO"
+                default 19
+                range -1 ENV_GPIO_IN_RANGE_MAX
+                help
+                    The GPIO pin for button 3.
+            config BSP_BUTTON_3_LEVEL
+                int
+                prompt "Button 3 Active Level"
+                default 0
+                range 0 1
+                help
+                    The active level for button 3.
+
+        endmenu
+
+        menu "Button 4"
+
+            config BSP_BUTTON_4_GPIO
+                int 
+                prompt "Button 4 GPIO"
+                default 18
+                range -1 ENV_GPIO_IN_RANGE_MAX
+                help
+                    The GPIO pin for button 4.
+            config BSP_BUTTON_4_LEVEL
+                int
+                prompt "Button 4 Active Level"
+                default 0
+                range 0 1
+                help
+                    The active level for button 4.
+        endmenu
+
+    endmenu
+    
+    menu "LEDs"
+
+        menu "LED"
+
+            config BSP_LED_GPIO
+                int 
+                prompt "LED GPIO"
+                default 13
+                range -1 ENV_GPIO_OUT_RANGE_MAX
+                help
+                    The GPIO pin for LED.
+            config BSP_LED_ACTIVE_LEVEL
+                int
+                prompt "LED 1 Active Level"
+                default 0
+                range 0 1
+                help
+                    The active level for LED 1.
+
+        endmenu
+
+        menu "LED RGB"
+
+            config BSP_LED_RGB_GPIO
+                int 
+                prompt "RGB LED GPIO"
+                default 8
+                range -1 ENV_GPIO_OUT_RANGE_MAX
+                help
+                    The GPIO pin for RGB LED.
+            config BSP_LED_RGB_PIXELS_NUM
+                int
+                prompt "Number of RGB LED pixels"
+                default 16
+                range 1 16
+                help
+                    The number of pixels in the RGB LED strip.
+
+        endmenu
+            
+    endmenu
+    
+    menu "IrDA"
+
+        config BSP_IRDA_TX_GPIO
+            int 
+            prompt "IrDA TX GPIO"
+            default 2
+            range -1 ENV_GPIO_OUT_RANGE_MAX
+            help
+                The GPIO pin for TX IrDA.
+
+        config BSP_IRDA_RX_GPIO
+            int 
+            prompt "IrDA RX GPIO"
+            default 3
+            range -1 ENV_GPIO_IN_RANGE_MAX
+            help
+                The GPIO pin for RX IrDA.
+
+        config BSP_IRDA_CARRIER_FREQ_HZ
+            int
+            prompt "IrDA Carrier Frequency (Hz)"
+            default 38000
+            range 1000 100000
+            help
+                The carrier frequency for IrDA communication.
+
+    endmenu
+
+    menu "Vibration Motor"
+
+        config BSP_VIBRATION_MOTOR_GPIO
+            int 
+            prompt "Vibration Motor GPIO"
+            default 12
+            range -1 ENV_GPIO_OUT_RANGE_MAX
+            help
+                The GPIO pin for vibration motor.
+
+    endmenu
+
+    menu "Battery"
+
+        config BSP_BATTERY_CAPACITY
+            int
+            prompt "Battery capacity (mAh)"
+            default 1000
+            range 1 10000
+            help
+                The capacity of the battery in mAh.
+
+    endmenu
+
+    # TARGET CONFIGURATION
+    
+    if IDF_TARGET_ESP32C3
+        config ENV_GPIO_RANGE_MIN
+            int
+            default 0
+
+        config ENV_GPIO_RANGE_MAX
+            int
+            default 21
+
+        config ENV_GPIO_IN_RANGE_MAX
+            int
+            default ENV_GPIO_RANGE_MAX
+
+        config ENV_GPIO_OUT_RANGE_MAX
+            int
+            default ENV_GPIO_RANGE_MAX
+    endif
+    
+    if IDF_TARGET_LINUX
+        config ENV_GPIO_RANGE_MIN
+            int
+            default 0
+
+        config ENV_GPIO_RANGE_MAX
+            int
+            default 0
+
+        config ENV_GPIO_IN_RANGE_MAX
+            int
+            default ENV_GPIO_RANGE_MAX
+
+        config ENV_GPIO_OUT_RANGE_MAX
+            int
+            default ENV_GPIO_RANGE_MAX
+    endif
+    
+endmenu

@@ -1,0 +1,1 @@
+# Vibrator component for the HOPE badge

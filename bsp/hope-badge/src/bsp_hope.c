@@ -22,7 +22,6 @@ static const char *TAG = "BSP-HOPE";
  #define LED_STRIP_MEMORY_BLOCK_WORDS 0
 
 static i2c_bus_handle_t i2c_bus = NULL;
-static i2c_master_bus_handle_t i2c_handle = NULL;
 static bool i2c_initialized = false;
 static button_handle_t btn[BSP_BUTTON_NUM] = {NULL};
 static led_strip_handle_t led_rgb_handle = NULL;
@@ -70,12 +69,6 @@ esp_err_t bsp_i2c_deinit(void)
     // Reset the I2C initialized flag
     i2c_initialized = false;
     return ESP_OK;
-}
-
-i2c_master_bus_handle_t bsp_i2c_get_handle(void)
-{
-    bsp_i2c_init();
-    return i2c_handle;
 }
 
 button_handle_t bsp_get_button_handle(uint8_t btn_num)

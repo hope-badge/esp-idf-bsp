@@ -269,7 +269,7 @@ float bsp_get_battery_percentage(void)
     return percent;
 }
 
-esp_err_t bsp_init_fuel_gauge(void)
+esp_err_t bsp_fuel_gauge_init(void)
 {
     // Initialize the MAX17048 fuel gauge
     max17048 = max17048_create(i2c_bus, MAX17048_I2C_ADDR_DEFAULT);
@@ -311,7 +311,7 @@ esp_err_t bsp_init(void)
     }
 
     // Initialize fuel gauge
-    ret |= bsp_init_fuel_gauge();
+    ret |= bsp_fuel_gauge_init();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize fuel gauge: %s", esp_err_to_name(ret));
     }

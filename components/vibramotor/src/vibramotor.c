@@ -20,6 +20,8 @@
 static const char *TAG = "Vibramotor";
 static int8_t vibramotor_gpio_num = -1;
 
+static TaskHandle_t vibramotor_task_handle = NULL;
+
 void vibramotor_run_task(void *pvParameters)
 {
     vibramotor_params_t *params = (vibramotor_params_t *) pvParameters;
@@ -45,10 +47,15 @@ void vibramotor_run_task(void *pvParameters)
 }
 
 
-esp_err_t vibramotor_stop(void)
+void vibramotor_stop(void)
 {
-    esp_err_t ret = ESP_OK;
-    return ret;
+
+    if (vibramotor_task_handle != NULL) {
+        // Delete the vibramotor task if it is running
+        vTaskDelete(vibramotor_task_handle);
+        vibramotor_task_handle = NULL;
+    }
+
 }
 
 esp_err_t vibramotor_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cycles)
@@ -67,7 +74,7 @@ esp_err_t vibramotor_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cyc
         return ESP_ERR_INVALID_STATE;
     }
 
-    ret = xTaskCreate(vibramotor_run_task, "vibramotor_task", 2048, &params, 5, NULL);
+    ret = xTaskCreate(vibramotor_run_task, "vibramotor_task", 2048, &params, 5, &vibramotor_task_handle);
     
     if (ret != pdPASS) {
         ESP_LOGE(TAG, "Failed to create vibramotor task: %s", esp_err_to_name(ret));

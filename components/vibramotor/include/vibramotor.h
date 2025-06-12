@@ -16,11 +16,11 @@ typedef struct {
     uint32_t time_on_ms;
     uint32_t time_off_ms;
     uint32_t repeat_count;
-} vibrator_params_t;
+} vibramotor_params_t;
 
-esp_err_t vibrator_init(uint8_t gpio_num);
-esp_err_t vibrator_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cycles);
-esp_err_t vibrator_stop(void);
+esp_err_t vibramotor_init(uint8_t gpio_num);
+esp_err_t vibramotor_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cycles);
+esp_err_t vibramotor_stop(void);
 
 #ifdef __cplusplus
 }

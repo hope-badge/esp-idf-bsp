@@ -13,7 +13,7 @@
 #include "freertos/idf_additions.h"
 #include "freertos/task.h"
 
-#include "vibrator.h"
+#include "vibramotor.h"
 
 static const char *TAG = "badge main";
 
@@ -167,10 +167,10 @@ void app_main(void)
         return;
     }
 
-    // Initialize the vibrator
-    ret = vibrator_init(BSP_VIBRATOR_IO);
+    // Initialize the vibramotor
+    ret = vibramotor_init(BSP_VIBRAMOTOR_IO);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize vibrator: %s", esp_err_to_name(ret));
+        ESP_LOGE(TAG, "Failed to initialize vibramotor: %s", esp_err_to_name(ret));
         return;
     }
 
@@ -183,8 +183,8 @@ void app_main(void)
     // Start the LED battery monitor task
     xTaskCreate(&led_battery_monitor_task, "led_battery_monitor_task", 2048, NULL, 5, NULL);
 
-    // Start the vibrator run task for 500 ms on, 250 ms off, 6 cycles
-    vibrator_run(500, 250, 6);
+    // Start the vibramotor run task for 500 ms on, 250 ms off, 6 cycles
+    vibramotor_run(250, 100, 6);
 
     ESP_LOGI(TAG, "Hope Badge example initialized successfully");
 

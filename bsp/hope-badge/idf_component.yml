@@ -17,9 +17,9 @@ tags:
 dependencies:
   idf: ">=5.3"
 
-  vibrator:
+  vibramotor:
     version: '*'
-    override_path: ../../components/vibrator
+    override_path: ../../components/vibramotor
 
   button:
     version: "^4"

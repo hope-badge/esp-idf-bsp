@@ -44,8 +44,8 @@
 #define BSP_LED_RGB_IO          (CONFIG_BSP_LED_RGB_GPIO)
 #define BSP_LED_RGB_PIXELS      (CONFIG_BSP_LED_RGB_PIXELS_NUM)
 
-/* Vibrator */
-#define BSP_VIBRATOR_IO         (CONFIG_BSP_VIBRATION_MOTOR_GPIO)
+/* Vibramotor */
+#define BSP_VIBRAMOTOR_IO       (CONFIG_BSP_VIBRATION_MOTOR_GPIO)
 
 /* IrDA */
 #define BSP_IRDA_TX_IO          (CONFIG_BSP_IRDA_TX_GPIO)

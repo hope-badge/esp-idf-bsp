@@ -27,7 +27,7 @@ This is the HOPE Badge Board Support Package, which is configurable from `menuco
 | max17048    |[espressif/max17048](https://components.espressif.com/components/espressif/max17048)                            |
 | i2c_bus     |[espressif/i2c_bus](https://components.espressif.com/components/espressif/i2c_bus)                             |
 | ir_learn    |[espressif/ir_learn](https://components.espressif.com/components/espressif/ir_learn)                            |
-| vibrator    |                                                                                                              |
+| vibramotor  |                                                                                                              |
 
 ### License
 

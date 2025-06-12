@@ -13,19 +13,19 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "vibrator.h"
+#include "vibramotor.h"
 #include <stdbool.h>
 #include <stdint.h>
 
-static const char *TAG = "Vibrator";
-static int8_t vibrator_gpio_num = -1;
+static const char *TAG = "Vibramotor";
+static int8_t vibramotor_gpio_num = -1;
 
-void vibrator_run_task(void *pvParameters)
+void vibramotor_run_task(void *pvParameters)
 {
-    vibrator_params_t *params = (vibrator_params_t *) pvParameters;
+    vibramotor_params_t *params = (vibramotor_params_t *) pvParameters;
 
     if (params == NULL) {
-        ESP_LOGE(TAG, "Invalid parameters for vibrator task");
+        ESP_LOGE(TAG, "Invalid parameters for vibramotor task");
         vTaskDelete(NULL);
         return;
     }
@@ -35,9 +35,9 @@ void vibrator_run_task(void *pvParameters)
     uint32_t repeat_count = params->repeat_count;
 
     for (uint32_t i = 0; i < repeat_count; i++) {
-        gpio_set_level(vibrator_gpio_num, 1);
+        gpio_set_level(vibramotor_gpio_num, 1);
         vTaskDelay(on_time / portTICK_PERIOD_MS);
-        gpio_set_level(vibrator_gpio_num, 0);
+        gpio_set_level(vibramotor_gpio_num, 0);
         vTaskDelay(off_time / portTICK_PERIOD_MS);
     }
     // Optionally delete task after completion
@@ -45,32 +45,32 @@ void vibrator_run_task(void *pvParameters)
 }
 
 
-esp_err_t vibrator_stop(void)
+esp_err_t vibramotor_stop(void)
 {
     esp_err_t ret = ESP_OK;
     return ret;
 }
 
-esp_err_t vibrator_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cycles)
+esp_err_t vibramotor_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cycles)
 {
     esp_err_t ret = ESP_OK;
 
-    vibrator_params_t params = {
+    vibramotor_params_t params = {
         .time_on_ms = time_on_ms,
         .time_off_ms = time_off_ms,
         .repeat_count = cycles,
     };
 
-    // Create a task to run the vibrator
-    if (vibrator_gpio_num == -1) {
-        ESP_LOGE(TAG, "Vibrator GPIO not initialized");
+    // Create a task to run the vibramotor
+    if (vibramotor_gpio_num == -1) {
+        ESP_LOGE(TAG, "Vibramotor GPIO not initialized");
         return ESP_ERR_INVALID_STATE;
     }
 
-    ret = xTaskCreate(vibrator_run_task, "vibrator_task", 2048, &params, 5, NULL);
+    ret = xTaskCreate(vibramotor_run_task, "vibramotor_task", 2048, &params, 5, NULL);
     
     if (ret != pdPASS) {
-        ESP_LOGE(TAG, "Failed to create vibrator task: %s", esp_err_to_name(ret));
+        ESP_LOGE(TAG, "Failed to create vibramotor task: %s", esp_err_to_name(ret));
         return ESP_FAIL;
     }
 
@@ -78,18 +78,18 @@ esp_err_t vibrator_run(uint16_t time_on_ms, uint16_t time_off_ms, uint16_t cycle
 }
 
 /**
- * @brief Initialize the vibrator by configuring the GPIO pin.
+ * @brief Initialize the vibramotor by configuring the GPIO pin.
  *
- * @param gpio_num The GPIO number to which the vibrator is connected.
+ * @param gpio_num The GPIO number to which the vibramotor is connected.
  * @return
  *      - ESP_OK on success
  *      - ESP_ERR_INVALID_ARG if the GPIO number is invalid
  *      - Other error codes on failure to configure the GPIO
  */
 
-esp_err_t vibrator_init(uint8_t gpio_num)
+esp_err_t vibramotor_init(uint8_t gpio_num)
 {
-    ESP_LOGI(TAG, "Initializing vibrator");
+    ESP_LOGI(TAG, "Initializing vibramotor");
     esp_err_t ret = ESP_OK;
 
     gpio_config_t io_conf = {
@@ -110,8 +110,8 @@ esp_err_t vibrator_init(uint8_t gpio_num)
         ESP_LOGE(TAG, "Failed to set GPIO %d level: %s", gpio_num, esp_err_to_name(ret));
         return ret;
     }
-    ESP_LOGI(TAG, "Vibrator initialized on GPIO %d", gpio_num);
-    vibrator_gpio_num = gpio_num;
+    ESP_LOGI(TAG, "Vibramotor initialized on GPIO %d", gpio_num);
+    vibramotor_gpio_num = gpio_num;
 
     return ret;
 }

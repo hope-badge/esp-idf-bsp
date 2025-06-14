@@ -1,5 +1,5 @@
 
-version: "0.0.1"
+version: "0.0.2"
 description: Vibramotor component for the HOPE badge
 url: https://github.com/hope-badge/esp-idf-bsp
 repository: https://github.com/hope-badge/esp-idf-bsp.git

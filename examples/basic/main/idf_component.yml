@@ -1,7 +1,7 @@
 description: HOPE badge basic example
 
 dependencies:
-  hope-badge:
+  hope-badge/hope-badge:
     version: '*'
     override_path: ../../../bsp/hope-badge
   espressif/network_provisioning: ^1.0.5

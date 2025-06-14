@@ -1,5 +1,7 @@
 # Vibramotor Component for ESP-IDF
 
+[![Component Registry](https://components.espressif.com/components/hope-badge/vibramotor/badge.svg)](https://components.espressif.com/components/hope-badge/vibramotor)
+
 ## Overview
 
 **Vibramotor** is an ESP-IDF component that provides a simple API to control a vibration motor connected to a GPIO pin.
@@ -23,6 +25,10 @@
 Install the component via the component manager from the ESP-IDF or search the component using the VSCode Extension for the ESP-IDF.
 
 ## Usage
+
+```bash
+idf.py add-dependency "hope-badge/vibramotor^0.0.1"
+```
 
 ### 1. Include the header
 

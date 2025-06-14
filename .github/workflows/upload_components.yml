@@ -22,6 +22,6 @@ jobs:
         uses: espressif/upload-components-ci-action@v1
         with:
           directories: >
-            components/vibramotor;
+            components/vibramotor;bsp/hope-badge;
           namespace: "hope-badge"
           api_token: ${{ secrets.CM_TOKEN }}

@@ -17,7 +17,7 @@ tags:
 dependencies:
   idf: ">=5.3"
 
-  vibramotor:
+  hope-badge/vibramotor:
     version: '*'
     override_path: ../../components/vibramotor
 

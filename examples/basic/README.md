@@ -29,6 +29,13 @@ It shows how to integrate the Vibramotor component with the badge’s BSP featur
 | hope-badge           |[espressif/button](https://components.espressif.com/components/espressif/button)                             |
 | network_provisioning |[espressif/network_provisioning](https://components.espressif.com/components/espressif/network_provisioning) |
 
+## How to use
+
+```bash
+idf.py create-project-from-example "hope-badge/hope-badge=0.0.1:basic"
+```
+
+
 ## Hardware Requirements
 
 - HOPE Badge hardware with supported ESP32 chipset

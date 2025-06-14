@@ -1,5 +1,7 @@
 # HOPE Badge Board Support Package (BSP)
 
+[![Component Registry](https://components.espressif.com/components/hope-badge/hope-badge/badge.svg)](https://components.espressif.com/components/hope-badge/hope-badge)
+
 ## Overview
 
 This is the HOPE Badge Board Support Package, which is configurable from `menuconfig`.
@@ -36,7 +38,13 @@ This is the HOPE Badge Board Support Package, which is configurable from `menuco
 | max17048    |[espressif/max17048](https://components.espressif.com/components/espressif/max17048)                          |
 | i2c_bus     |[espressif/i2c_bus](https://components.espressif.com/components/espressif/i2c_bus)                            |
 | ir_learn    |[espressif/ir_learn](https://components.espressif.com/components/espressif/ir_learn)                          |
-| vibramotor  |[vibramotor](/components/vibramotor/README.md)                                                                |
+| vibramotor  |[hope-badge/vibramotor](https://components.espressif.com/components/hope-badge/vibramotor)                                                                |
+
+## How to use
+
+```bash
+idf.py add-dependency "hope-badge/hope-badge^0.0.1"
+```
 
 ## API Reference
 

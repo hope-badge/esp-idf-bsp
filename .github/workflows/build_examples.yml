@@ -1,0 +1,29 @@
+name: 'build'
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build:
+    name: Build Examples
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        espidf_target:
+          - esp32c3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: Build Test Application with ESP-IDF
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: "latest" # latest is the default version
+          target: ${{ matrix.espidf_target }}
+          path: 'examples/basic'

@@ -1,0 +1,13 @@
+
+version: "0.0.1"
+description: Vibramotor component for the HOPE badge
+url: https://github.com/hope-badge/esp-idf-bsp
+repository: https://github.com/hope-badge/esp-idf-bsp.git
+issues: https://github.com/hope-badge/esp-idf-bsp/issues
+
+tags:
+  - motor
+  - vibramotor
+
+dependencies:
+  idf: ">=5.1"

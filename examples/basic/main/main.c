@@ -30,7 +30,6 @@ static void btn_1_event_cb(void *arg, void *data)
         vTaskDelete(led_blink_task_handle);
         led_blink_task_handle = NULL;
     }
-
 }
 
 static void btn_2_event_cb(void *arg, void *data)
@@ -42,8 +41,6 @@ static esp_err_t btn_register_callbacks(void)
 {
     // Register callbacks for button events
     esp_err_t ret = iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_1_GPIO_INDEX), BUTTON_PRESS_DOWN, NULL, btn_1_event_cb, NULL);
-    // ret |= iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_1_GPIO_INDEX), BUTTON_PRESS_UP, NULL, btn_1_event_cb, NULL);
-
     ret |= iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_2_GPIO_INDEX), BUTTON_DOUBLE_CLICK, NULL, btn_2_event_cb, NULL);
 
     button_event_args_t args = {
@@ -174,16 +171,18 @@ void app_main(void)
         return;
     }
 
+    // uncomment the following lines to initialize the LED RGB in different modes
     // Start the LED RGB blink task
     // xTaskCreate(&led_rgb_blink_task, "led_rgb_blink_task", 2048, NULL, 6, NULL);
     // Start the LED RGB ring task
     // xTaskCreate(&led_rgb_ring_task, "led_rgb_ring_task", 2048, NULL, 8, NULL);
+
     // Start the LED blink task
     xTaskCreate(&led_blink_task, "led_blink_task", 2048, NULL, 7, NULL);
     // Start the LED battery monitor task
     xTaskCreate(&led_battery_monitor_task, "led_battery_monitor_task", 2048, NULL, 5, NULL);
 
-    // Start the vibramotor run task for 500 ms on, 250 ms off, 6 cycles
+    // Start the vibramotor run task for 250 ms on, 100 ms off, for 6 cycles
     vibramotor_run(250, 100, 6);
 
     ESP_LOGI(TAG, "Hope Badge example initialized successfully");

@@ -21,6 +21,10 @@ dependencies:
     version: '*'
     override_path: ../../components/vibramotor
 
+  hope-badge/pcf8574:
+    version: '*'
+    override_path: ../../components/pcf8574
+
   button:
     version: "^4"
     public: true

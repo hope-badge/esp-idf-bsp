@@ -1,12 +1,14 @@
-version: "0.0.2"
-description: Vibramotor component for the HOPE badge
+name: hope-badge/pcf8574
+version: "0.0.1"
+description: PCF8574 I2C GPIO Expander Component
 url: https://github.com/hope-badge/esp-idf-bsp
 repository: https://github.com/hope-badge/esp-idf-bsp.git
 issues: https://github.com/hope-badge/esp-idf-bsp/issues
 
 tags:
-  - motor
-  - vibramotor
+  - pcf8574
+  - gpio
 
 dependencies:
+  i2c_bus: "^1.1.0"
   idf: ">=5.1"

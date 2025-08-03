@@ -48,15 +48,16 @@ esp_err_t pcf8574_read(pcf8574_handle_t dev, uint8_t *data)
         return ESP_ERR_INVALID_ARG;
     }
 
-    uint8_t result = 0;
     pcf8574_device_t *device = (pcf8574_device_t *)dev;
-    esp_err_t ret = i2c_bus_read_bytes(device->i2c_dev, &result, 1);
+
+    uint8_t buf = 0x00;
+    esp_err_t ret = i2c_bus_read_bytes(device->i2c_dev, 0x00, 1, &buf);  // 0x00 is a dummy register
     if (ret != ESP_OK) {
         return ESP_FAIL;
     }
-    *data = result;
 
-    return ESP_OK;
+    *data = buf;
+    return ret;
 }
 
 esp_err_t pcf8574_write(pcf8574_handle_t dev, uint8_t data)
@@ -66,10 +67,5 @@ esp_err_t pcf8574_write(pcf8574_handle_t dev, uint8_t data)
     }
 
     pcf8574_device_t *device = (pcf8574_device_t *)dev;
-    esp_err_t ret = i2c_bus_write_bytes(device->i2c_dev, &data, 1);
-    if (ret != ESP_OK) {
-        return ESP_FAIL;
-    }
-
-    return ESP_OK;
+    return i2c_bus_write_byte(device->i2c_dev, 0x00, data);
 }

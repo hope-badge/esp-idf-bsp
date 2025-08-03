@@ -286,7 +286,7 @@ esp_err_t bsp_pcf8574_init(void)
     }
 
     // Set as output
-    uint8_t io_dir_mask = 0x0E;  // 00001110 -> P3, P2, P1 = 1 (entrada)
+    uint8_t io_dir_mask = 0x0E;  // 00001110 -> P3, P2, P1 = 1 (input)
     pcf8574_write(pcf_dev, io_dir_mask);
 
     ESP_LOGI(TAG, "PCF8574 initialized successfully");

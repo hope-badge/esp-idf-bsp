@@ -50,7 +50,7 @@ esp_err_t pcf8574_read(pcf8574_handle_t dev, uint8_t *data)
 
     uint8_t result = 0;
     pcf8574_device_t *device = (pcf8574_device_t *)dev;
-    esp_err_t ret = i2c_bus_read_byte(device->i2c_dev, PCF8574_REG_INPUT, &result);
+    esp_err_t ret = i2c_bus_read_bytes(device->i2c_dev, &result, 1);
     if (ret != ESP_OK) {
         return ESP_FAIL;
     }

@@ -242,8 +242,10 @@ float bsp_get_battery_voltage(void);
  *
  **************************************************************************************************/
 
-/** * @brief Initialize the PCF8574 I/O expander
- * * @return
+/**
+ * @brief Initialize the PCF8574 I/O expander
+ *
+ * @return
  *      - ESP_OK                On success
  *      - ESP_ERR_INVALID_ARG   PCF8574 parameter error
  *      - ESP_FAIL              PCF8574 initialization error

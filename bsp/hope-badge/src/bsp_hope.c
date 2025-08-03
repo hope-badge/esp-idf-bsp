@@ -26,6 +26,7 @@ static bool i2c_initialized = false;
 static button_handle_t btn[BSP_BUTTON_NUM] = {NULL};
 static led_strip_handle_t led_rgb_handle = NULL;
 static max17048_handle_t max17048 = NULL;
+static pcf8574_handle_t pcf_dev = NULL;
 
 esp_err_t bsp_i2c_init(void)
 {
@@ -275,6 +276,26 @@ esp_err_t bsp_fuel_gauge_init(void)
     return ESP_OK;
 }
 
+esp_err_t bsp_pcf8574_init(void)
+{
+
+    pcf_dev = pcf8574_create(i2c_bus, PCF8574_I2C_ADDR_DEFAULT);
+    if (pcf_dev == NULL) {
+        ESP_LOGE(TAG, "Failed to create PCF8574 handle");
+        return ESP_FAIL;
+    }
+
+    // Set as output
+    uint8_t io_dir_mask = 0x0E;  // 00001110 -> P3, P2, P1 = 1 (entrada)
+    pcf8574_write(pcf_dev, io_dir_mask);
+
+    ESP_LOGI(TAG, "PCF8574 initialized successfully");
+
+    
+
+    return ESP_OK;
+}
+
 esp_err_t bsp_init(void)
 {
     ESP_LOGI(TAG, "Initializing Hope Badge BSP");
@@ -308,6 +329,9 @@ esp_err_t bsp_init(void)
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize fuel gauge: %s", esp_err_to_name(ret));
     }
+
+    // Only initialize PCF8574 if it is used in the project
+    bsp_pcf8574_init();
 
     ESP_LOGI(TAG, "BSP initialization complete");
 

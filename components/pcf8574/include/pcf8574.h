@@ -21,7 +21,15 @@ extern "C" {
 #define PCF8574_REG_CONFIG 0x03
 
 typedef void *pcf8574_handle_t;
+typedef struct {
+    i2c_bus_device_handle_t i2c_dev;
+    uint8_t dev_addr;
+} pcf8574_device_t;
 
+esp_err_t pcf8574_read(pcf8574_handle_t dev, uint8_t *data);
+esp_err_t pcf8574_write(pcf8574_handle_t dev, uint8_t data);
+pcf8574_handle_t pcf8574_create(i2c_bus_handle_t bus, uint8_t dev_addr);
+esp_err_t pcf8574_delete(pcf8574_handle_t *dev);
 
 #ifdef __cplusplus
 }

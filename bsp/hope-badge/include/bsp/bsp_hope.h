@@ -7,6 +7,7 @@
 #include "iot_button.h"
 #include "led_strip.h"
 #include "max17048.h"
+#include "pcf8574.h"
 
 /**************************************************************************************************
  *  BSP Capabilities
@@ -234,6 +235,32 @@ float bsp_get_battery_percentage(void);
  *      - Returns -1.0f on error
  */
 float bsp_get_battery_voltage(void);
+
+/**************************************************************************************************
+ *
+ * PCF8574
+ *
+ **************************************************************************************************/
+
+/** * @brief Initialize the PCF8574 I/O expander
+ * * @return
+ *      - ESP_OK                On success
+ *      - ESP_ERR_INVALID_ARG   PCF8574 parameter error
+ *      - ESP_FAIL              PCF8574 initialization error
+ */
+esp_err_t bsp_pcf8574_init(void);
+
+/**
+ * @brief Read the state of the PCF8574 I/O expander
+ *
+ * @param data Pointer to store the read data
+ *
+ * @return
+ *      - ESP_OK                On success
+ *      - ESP_ERR_INVALID_ARG   PCF8574 handle or data pointer is NULL
+ *      - ESP_FAIL              Read operation failed
+ */
+esp_err_t bsp_pcf8574_read_ios(uint8_t *data);
 
 #ifdef __cplusplus
 }

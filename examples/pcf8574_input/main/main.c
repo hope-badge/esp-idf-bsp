@@ -81,6 +81,9 @@ static void pcf8574_polling_task(void *arg)
     }
 }
 
+/* #define EXAMPLE_USE_INTERRUPT */
+
+#ifdef EXAMPLE_USE_INTERRUPT
 /*
  * Example 2: Interrupt-driven — react immediately to pin changes
  *
@@ -122,43 +125,37 @@ static void pcf8574_interrupt_task(void *arg)
         }
     }
 }
+#endif /* EXAMPLE_USE_INTERRUPT */
 
 void app_main(void)
 {
     ESP_LOGI(TAG, "PCF8574 Input Reading Example");
 
-    /* Initialize the BSP (sets up I2C bus, etc.) */
+    /* Initialize the BSP (sets up I2C bus, PCF8574, etc.) */
     ESP_ERROR_CHECK(bsp_init());
 
     /*
-     * Create the PCF8574 device.
-     * The BSP already creates one internally, but here we show standalone usage.
+     * Get the PCF8574 handle from the BSP.
+     * bsp_init() already calls bsp_pcf8574_init() which creates the device
+     * and sets the default direction (P1, P2, P3 as inputs).
      */
-    extern i2c_bus_handle_t i2c_bus; /* Exposed by the BSP for reuse */
-
-    pcf8574_handle_t pcf_dev = pcf8574_create(i2c_bus, PCF8574_I2C_ADDR_DEFAULT);
+    pcf8574_handle_t pcf_dev = bsp_pcf8574_get_handle();
     if (pcf_dev == NULL) {
-        ESP_LOGE(TAG, "Failed to create PCF8574 device");
+        ESP_LOGE(TAG, "Failed to get PCF8574 handle from BSP");
         return;
     }
 
     /*
-     * Configure pin directions:
-     *   INPUT_MASK = 0x0E → P1, P2, P3 are inputs (held HIGH by weak pull-up)
-     *   Remaining pins are outputs.
+     * Optionally override the pin directions.
+     * The BSP already configured INPUT_MASK = 0x0E (P1, P2, P3 as inputs).
+     * Uncomment the line below only if you need a different configuration.
      */
-    ESP_ERROR_CHECK(pcf8574_set_direction(pcf_dev, INPUT_MASK));
-    ESP_LOGI(TAG, "Direction set: input_mask=0x%02X (P1, P2, P3 = input)", INPUT_MASK);
+    /* ESP_ERROR_CHECK(pcf8574_set_direction(pcf_dev, INPUT_MASK)); */
+    ESP_LOGI(TAG, "Direction: input_mask=0x%02X (P1, P2, P3 = input)", INPUT_MASK);
 
     /* Set output pin P0 HIGH as a demo */
     ESP_ERROR_CHECK(pcf8574_set_pin(pcf_dev, 0));
     ESP_LOGI(TAG, "P0 set HIGH");
-
-    /*
-     * Choose one of the two approaches below.
-     * Uncomment EXAMPLE_USE_INTERRUPT to use interrupt mode instead of polling.
-     */
-/* #define EXAMPLE_USE_INTERRUPT */
 
 #ifdef EXAMPLE_USE_INTERRUPT
     /*

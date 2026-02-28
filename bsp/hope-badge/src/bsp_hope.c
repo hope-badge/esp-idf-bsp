@@ -278,22 +278,30 @@ esp_err_t bsp_fuel_gauge_init(void)
 
 esp_err_t bsp_pcf8574_init(void)
 {
-
     pcf_dev = pcf8574_create(i2c_bus, PCF8574_I2C_ADDR_DEFAULT);
     if (pcf_dev == NULL) {
         ESP_LOGE(TAG, "Failed to create PCF8574 handle");
         return ESP_FAIL;
     }
 
-    // Set as output
-    uint8_t io_dir_mask = 0x0E;  // 00001110 -> P3, P2, P1 = 1 (input)
-    pcf8574_write(pcf_dev, io_dir_mask);
+    // Set direction: P1, P2, P3 as inputs (weak pull-up), rest as outputs
+    uint8_t io_dir_mask = 0x0E;  // 00001110 -> P3, P2, P1 = input
+    esp_err_t ret = pcf8574_set_direction(pcf_dev, io_dir_mask);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to set PCF8574 direction: %s", esp_err_to_name(ret));
+        return ret;
+    }
 
     ESP_LOGI(TAG, "PCF8574 initialized successfully");
-
-    
-
     return ESP_OK;
+}
+
+pcf8574_handle_t bsp_pcf8574_get_handle(void)
+{
+    if (pcf_dev == NULL) {
+        ESP_LOGE(TAG, "PCF8574 handle is not initialized");
+    }
+    return pcf_dev;
 }
 
 esp_err_t bsp_init(void)

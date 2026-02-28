@@ -253,6 +253,15 @@ float bsp_get_battery_voltage(void);
 esp_err_t bsp_pcf8574_init(void);
 
 /**
+ * @brief Get the PCF8574 device handle
+ *
+ * @return
+ *      - PCF8574 handle if initialized
+ *      - NULL if not initialized
+ */
+pcf8574_handle_t bsp_pcf8574_get_handle(void);
+
+/**
  * @brief Read the state of the PCF8574 I/O expander
  *
  * @param data Pointer to store the read data

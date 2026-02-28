@@ -6,6 +6,8 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+#include <stdbool.h>
+
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_check.h"
@@ -14,12 +16,11 @@
 #include "bsp/bsp_hope.h"
 #include "bsp_err_check.h"
 #include "button_gpio.h"
-#include <stdbool.h>
 
 static const char *TAG = "BSP-HOPE";
 
- #define LED_STRIP_RMT_RES_HZ  (10 * 1000 * 1000)
- #define LED_STRIP_MEMORY_BLOCK_WORDS 0
+#define LED_STRIP_RMT_RES_HZ  (10 * 1000 * 1000)
+#define LED_STRIP_MEMORY_BLOCK_WORDS 0
 
 static i2c_bus_handle_t i2c_bus = NULL;
 static bool i2c_initialized = false;
@@ -30,6 +31,10 @@ static pcf8574_handle_t pcf_dev = NULL;
 
 esp_err_t bsp_i2c_init(void)
 {
+    if (i2c_initialized) {
+        ESP_LOGW(TAG, "I2C bus is already initialized");
+        return ESP_OK;
+    }
 
     i2c_config_t conf = {
         .mode = I2C_MODE_MASTER,
@@ -37,10 +42,14 @@ esp_err_t bsp_i2c_init(void)
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_io_num = BSP_I2C_SCL,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 400 * 1000,
+        .master.clk_speed = CONFIG_BSP_I2C_CLK_SPEED_HZ,
     };
 
     i2c_bus = i2c_bus_create(BSP_I2C_NUM, &conf);
+    if (i2c_bus == NULL) {
+        ESP_LOGE(TAG, "Failed to create I2C bus");
+        return ESP_FAIL;
+    }
 
     i2c_initialized = true;
 
@@ -82,61 +91,68 @@ button_handle_t bsp_get_button_handle(uint8_t btn_num)
 
 esp_err_t bsp_buttons_init(void)
 {
-
     // Initialize button 1
     button_config_t btn_1_cfg = {0};
-
-        button_gpio_config_t btn_1_gpio_cfg = {
-            .gpio_num = BSP_BUTTON_1_GPIO,
-            .active_level = BSP_BUTTON_1_ACTIVE_LEVEL,
-            .enable_power_save = true,
-        };
+    button_gpio_config_t btn_1_gpio_cfg = {
+        .gpio_num = BSP_BUTTON_1_GPIO,
+        .active_level = BSP_BUTTON_1_ACTIVE_LEVEL,
+        .enable_power_save = true,
+    };
 
     btn[0] = NULL;
     esp_err_t ret = iot_button_new_gpio_device(&btn_1_cfg, &btn_1_gpio_cfg, &btn[0]);
-    assert(ret == ESP_OK);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize button 1: %s", esp_err_to_name(ret));
+        return ret;
+    }
 
     // Initialize button 2
     button_config_t btn_2_cfg = {0};
-
-        button_gpio_config_t btn_2_gpio_cfg = {
-            .gpio_num = BSP_BUTTON_2_GPIO,
-            .active_level = BSP_BUTTON_2_ACTIVE_LEVEL,
-            .enable_power_save = true,
-        };
+    button_gpio_config_t btn_2_gpio_cfg = {
+        .gpio_num = BSP_BUTTON_2_GPIO,
+        .active_level = BSP_BUTTON_2_ACTIVE_LEVEL,
+        .enable_power_save = true,
+    };
 
     btn[1] = NULL;
-    ret |= iot_button_new_gpio_device(&btn_2_cfg, &btn_2_gpio_cfg, &btn[1]);
-    assert(ret == ESP_OK);
+    ret = iot_button_new_gpio_device(&btn_2_cfg, &btn_2_gpio_cfg, &btn[1]);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize button 2: %s", esp_err_to_name(ret));
+        return ret;
+    }
 
     // Uncomment the following lines if you are not using USB
 
     /*
     button_config_t btn_3_cfg = {0};
+    button_gpio_config_t btn_3_gpio_cfg = {
+        .gpio_num = BSP_BUTTON_3_GPIO,
+        .active_level = BSP_BUTTON_3_ACTIVE_LEVEL,
+        .enable_power_save = true,
+    };
 
-        button_gpio_config_t btn_3_gpio_cfg = {
-            .gpio_num = BSP_BUTTON_3_GPIO,
-            .active_level = BSP_BUTTON_3_ACTIVE_LEVEL,
-            .enable_power_save = true,
-        };
-
-    btn_3 = NULL;
-    ret |= iot_button_new_gpio_device(&btn_3_cfg, &btn_3_gpio_cfg, &btn_3);
-    assert(ret == ESP_OK);
+    btn[2] = NULL;
+    ret = iot_button_new_gpio_device(&btn_3_cfg, &btn_3_gpio_cfg, &btn[2]);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize button 3: %s", esp_err_to_name(ret));
+        return ret;
+    }
 
     button_config_t btn_4_cfg = {0};
+    button_gpio_config_t btn_4_gpio_cfg = {
+        .gpio_num = BSP_BUTTON_4_GPIO,
+        .active_level = BSP_BUTTON_4_ACTIVE_LEVEL,
+        .enable_power_save = true,
+    };
 
-        button_gpio_config_t btn_4_gpio_cfg = {
-            .gpio_num = BSP_BUTTON_4_GPIO,
-            .active_level = BSP_BUTTON_4_ACTIVE_LEVEL,
-            .enable_power_save = true,
-        };
-
-    btn_4 = NULL;
-    ret |= iot_button_new_gpio_device(&btn_4_cfg, &btn_4_gpio_cfg, &btn_4);
-    assert(ret == ESP_OK);
+    btn[3] = NULL;
+    ret = iot_button_new_gpio_device(&btn_4_cfg, &btn_4_gpio_cfg, &btn[3]);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize button 4: %s", esp_err_to_name(ret));
+        return ret;
+    }
     */
-    
+
     return ret;
 }
 
@@ -181,7 +197,7 @@ int8_t bsp_gpio_get_level(gpio_num_t gpio_num)
     // Check if the GPIO number is valid
     if (gpio_num < 0 || gpio_num >= GPIO_NUM_MAX) {
         ESP_LOGE(TAG, "Invalid GPIO number: %d", gpio_num);
-        return -1; // Return 0 for invalid GPIO number
+        return -1; // Return -1 for invalid GPIO number
     }
 
     // Get the GPIO level
@@ -223,7 +239,11 @@ esp_err_t bsp_init_led_rgb(void)
         }
     };
 
-    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_rgb_handle));
+    esp_err_t ret = led_strip_new_rmt_device(&strip_config, &rmt_config, &led_rgb_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to create LED strip RMT device: %s", esp_err_to_name(ret));
+        return ret;
+    }
     ESP_LOGI(TAG, "Created LED strip object with RMT backend");
 
     return ESP_OK;
@@ -278,10 +298,16 @@ esp_err_t bsp_fuel_gauge_init(void)
 
 esp_err_t bsp_pcf8574_init(void)
 {
+    // Try default PCF8574 address (0x20) first, then PCF8574A address (0x38) as fallback
     pcf_dev = pcf8574_create(i2c_bus, PCF8574_I2C_ADDR_DEFAULT);
     if (pcf_dev == NULL) {
-        ESP_LOGE(TAG, "Failed to create PCF8574 handle");
-        return ESP_FAIL;
+        ESP_LOGW(TAG, "PCF8574 not found at 0x%02X, trying PCF8574A at 0x%02X",
+                 PCF8574_I2C_ADDR_DEFAULT, PCF8574A_I2C_ADDR_DEFAULT);
+        pcf_dev = pcf8574_create(i2c_bus, PCF8574A_I2C_ADDR_DEFAULT);
+        if (pcf_dev == NULL) {
+            ESP_LOGE(TAG, "Failed to create PCF8574 handle at either address");
+            return ESP_FAIL;
+        }
     }
 
     // Set direction: P1, P2, P3 as inputs (weak pull-up), rest as outputs
@@ -289,6 +315,7 @@ esp_err_t bsp_pcf8574_init(void)
     esp_err_t ret = pcf8574_set_direction(pcf_dev, io_dir_mask);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to set PCF8574 direction: %s", esp_err_to_name(ret));
+        pcf_dev = NULL;
         return ret;
     }
 
@@ -304,42 +331,72 @@ pcf8574_handle_t bsp_pcf8574_get_handle(void)
     return pcf_dev;
 }
 
+esp_err_t bsp_register_button_callbacks(void)
+{
+    ESP_LOGW(TAG, "No button callbacks registered (not implemented)");
+    return ESP_OK;
+}
+
+esp_err_t bsp_pcf8574_read_ios(uint8_t *data)
+{
+    if (pcf_dev == NULL) {
+        ESP_LOGE(TAG, "PCF8574 handle is not initialized");
+        return ESP_ERR_INVALID_STATE;
+    }
+    if (data == NULL) {
+        ESP_LOGE(TAG, "Data pointer is NULL");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    return pcf8574_read(pcf_dev, data);
+}
+
 esp_err_t bsp_init(void)
 {
     ESP_LOGI(TAG, "Initializing Hope Badge BSP");
+    esp_err_t ret = ESP_OK;
+    esp_err_t err;
 
-    // Initialize I2C
-    esp_err_t ret = bsp_i2c_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize I2C: %s", esp_err_to_name(ret));
+    // Initialize I2C — required by fuel gauge and PCF8574
+    err = bsp_i2c_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize I2C: %s", esp_err_to_name(err));
+        return err;  // Cannot continue without I2C
     }
 
     // Initialize buttons
-    ret |= bsp_buttons_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize buttons: %s", esp_err_to_name(ret));
+    err = bsp_buttons_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize buttons: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
     }
 
     // Initialize LED
-    ret |= bsp_led_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize LED: %s", esp_err_to_name(ret));
+    err = bsp_led_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize LED: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
     }
-    
+
     // Initialize RGB LED
-    ret |= bsp_init_led_rgb();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize RGB LED: %s", esp_err_to_name(ret));
+    err = bsp_init_led_rgb();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize RGB LED: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
     }
 
     // Initialize fuel gauge
-    ret |= bsp_fuel_gauge_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize fuel gauge: %s", esp_err_to_name(ret));
+    err = bsp_fuel_gauge_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize fuel gauge: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
     }
 
-    // Only initialize PCF8574 if it is used in the project
-    bsp_pcf8574_init();
+    // Initialize PCF8574 I/O expander (non-critical)
+    err = bsp_pcf8574_init();
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Failed to initialize PCF8574: %s", esp_err_to_name(err));
+    }
 
     ESP_LOGI(TAG, "BSP initialization complete");
 

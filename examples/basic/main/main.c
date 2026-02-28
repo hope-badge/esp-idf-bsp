@@ -7,28 +7,37 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 #include <stdio.h>
-#include "bsp/bsp.h"
+
 #include "esp_err.h"
 #include "esp_log.h"
 #include "freertos/idf_additions.h"
 #include "freertos/task.h"
+#include "iot_button.h"
+#include "led_strip.h"
 
+#include "bsp/bsp.h"
 #include "vibramotor.h"
 
 static const char *TAG = "badge main";
 
-static TaskHandle_t led_blink_task_handle = NULL;
+static TaskHandle_t led_rgb_task_handle = NULL;
 void led_rgb_blink_task(void *pvParameters);
+void led_rgb_ring_task(void *pvParameters);
 
 static void btn_1_event_cb(void *arg, void *data)
 {
     iot_button_print_event((button_handle_t)arg);
 
-    if (led_blink_task_handle == NULL) {
-        xTaskCreate(led_rgb_blink_task, "led_rgb_blink_task", 2048, NULL, 5, &led_blink_task_handle);
+    if (led_rgb_task_handle != NULL) {
+        vTaskDelete(led_rgb_task_handle);
+        led_rgb_task_handle = NULL;
+        // Clear the strip when stopping
+        led_strip_handle_t led_rgb = bsp_get_led_rgb_handle();
+        if (led_rgb) {
+            led_strip_clear(led_rgb);
+        }
     } else {
-        vTaskDelete(led_blink_task_handle);
-        led_blink_task_handle = NULL;
+        xTaskCreate(led_rgb_blink_task, "led_rgb_blink_task", 2048, NULL, 5, &led_rgb_task_handle);
     }
 }
 
@@ -39,46 +48,62 @@ static void btn_2_event_cb(void *arg, void *data)
 
 static esp_err_t btn_register_callbacks(void)
 {
+    esp_err_t ret = ESP_OK;
+    esp_err_t err;
+
     // Register callbacks for button events
-    esp_err_t ret = iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_1_GPIO_INDEX), BUTTON_PRESS_DOWN, NULL, btn_1_event_cb, NULL);
-    ret |= iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_2_GPIO_INDEX), BUTTON_DOUBLE_CLICK, NULL, btn_2_event_cb, NULL);
+    err = iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_1_GPIO_INDEX), BUTTON_PRESS_DOWN, NULL, btn_1_event_cb, NULL);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register button 1 callback: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
+    }
+
+    err = iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_2_GPIO_INDEX), BUTTON_DOUBLE_CLICK, NULL, btn_2_event_cb, NULL);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register button 2 double-click callback: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
+    }
 
     button_event_args_t args = {
         .long_press.press_time = 5000,
     };
 
-    ret |= iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_2_GPIO_INDEX), BUTTON_LONG_PRESS_START, &args, btn_2_event_cb, NULL);
-
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register button callbacks: %s", esp_err_to_name(ret));
+    err = iot_button_register_cb(bsp_get_button_handle(BSP_BUTTON_2_GPIO_INDEX), BUTTON_LONG_PRESS_START, &args, btn_2_event_cb, NULL);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register button 2 long-press callback: %s", esp_err_to_name(err));
+        if (ret == ESP_OK) ret = err;
     }
-    
+
     return ret;
 }
 
 void led_rgb_blink_task(void *pvParameters)
-{     
+{
     bool led_on_off = false;
 
     led_strip_handle_t led_rgb = bsp_get_led_rgb_handle();
     if (led_rgb == NULL) {
         ESP_LOGE(TAG, "LED RGB handle is not initialized");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
         vTaskDelete(NULL);
         return;
     }
 
-    while(1) {
+    while (1) {
+        esp_err_t ret;
         if (led_on_off) {
             for (int i = 0; i < BSP_LED_RGB_PIXELS; i++) {
-                ESP_ERROR_CHECK(led_strip_set_pixel(led_rgb, i, 5, 5, 5));
+                ret = led_strip_set_pixel(led_rgb, i, 5, 5, 5);
+                if (ret != ESP_OK) {
+                    ESP_LOGE(TAG, "Failed to set pixel %d: %s", i, esp_err_to_name(ret));
+                    break;
+                }
             }
-            ESP_ERROR_CHECK(led_strip_refresh(led_rgb));
+            led_strip_refresh(led_rgb);
         } else {
-            ESP_ERROR_CHECK(led_strip_clear(led_rgb));
+            led_strip_clear(led_rgb);
         }
         led_on_off = !led_on_off;
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
@@ -87,12 +112,11 @@ void led_rgb_ring_task(void *pvParameters)
     led_strip_handle_t led_rgb = bsp_get_led_rgb_handle();
     if (led_rgb == NULL) {
         ESP_LOGE(TAG, "LED RGB handle is not initialized");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
         vTaskDelete(NULL);
         return;
     }
 
-    int num_leds = BSP_LED_RGB_PIXELS; // assuming 16 or set explicitly to 16
+    int num_leds = BSP_LED_RGB_PIXELS;
     int current_led = 0;
 
     /* Steps to set the pixel
@@ -104,19 +128,19 @@ void led_rgb_ring_task(void *pvParameters)
     */
 
     while (1) {
-        ESP_ERROR_CHECK(led_strip_clear(led_rgb));
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_rgb, current_led, 50, 0, 50));
-        ESP_ERROR_CHECK(led_strip_refresh(led_rgb));
+        led_strip_clear(led_rgb);
+        led_strip_set_pixel(led_rgb, current_led, 50, 0, 50);
+        led_strip_refresh(led_rgb);
         current_led = (current_led + 1) % num_leds;
-        vTaskDelay(40 / portTICK_PERIOD_MS); // Adjust delay for speed of ring
+        vTaskDelay(pdMS_TO_TICKS(40)); // Adjust delay for speed of ring
     }
 }
 
 void led_blink_task(void *pvParameters)
-{     
+{
     bool led_on_off = false;
 
-    while(1) {
+    while (1) {
         if (led_on_off) {
             bsp_gpio_set_level(BSP_LED_IO, 0);
         } else {
@@ -124,17 +148,16 @@ void led_blink_task(void *pvParameters)
         }
 
         led_on_off = !led_on_off;
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
 void led_battery_monitor_task(void *pvParameters)
-{     
-    
+{
     float voltage = 0;
     float percentage = 0;
 
-    while(1) {
+    while (1) {
         voltage = bsp_get_battery_voltage();
         percentage = bsp_get_battery_percentage();
         if (voltage < 0 || percentage < 0) {
@@ -142,7 +165,7 @@ void led_battery_monitor_task(void *pvParameters)
         } else {
             ESP_LOGI(TAG, "Battery Voltage: %.2f V, Percentage: %.2f%%", voltage, percentage);
         }
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
 
@@ -150,10 +173,10 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "Starting HOPE badge basic example");
 
-    // Initialize I2C
+    // Initialize BSP (I2C, buttons, LEDs, fuel gauge, etc.)
     esp_err_t ret = bsp_init();
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize I2C: %s", esp_err_to_name(ret));
+        ESP_LOGE(TAG, "Failed to initialize BSP: %s", esp_err_to_name(ret));
         return;
     }
 
@@ -171,16 +194,13 @@ void app_main(void)
         return;
     }
 
-    // uncomment the following lines to initialize the LED RGB in different modes
-    // Start the LED RGB blink task
-    // xTaskCreate(&led_rgb_blink_task, "led_rgb_blink_task", 2048, NULL, 6, NULL);
-    // Start the LED RGB ring task
-    // xTaskCreate(&led_rgb_ring_task, "led_rgb_ring_task", 2048, NULL, 8, NULL);
+    // Start the LED RGB ring task (button 1 toggles to blink mode)
+    xTaskCreate(led_rgb_ring_task, "led_rgb_ring_task", 2048, NULL, 8, &led_rgb_task_handle);
 
     // Start the LED blink task
-    xTaskCreate(&led_blink_task, "led_blink_task", 2048, NULL, 7, NULL);
-    // Start the LED battery monitor task
-    xTaskCreate(&led_battery_monitor_task, "led_battery_monitor_task", 2048, NULL, 5, NULL);
+    xTaskCreate(led_blink_task, "led_blink_task", 2048, NULL, 7, NULL);
+    // Start the battery monitor task (needs extra stack for float formatting)
+    xTaskCreate(led_battery_monitor_task, "battery_monitor", 3072, NULL, 5, NULL);
 
     // Start the vibramotor run task for 250 ms on, 100 ms off, for 6 cycles
     vibramotor_run(250, 100, 6);

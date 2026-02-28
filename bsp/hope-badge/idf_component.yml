@@ -1,5 +1,5 @@
 
-version: "0.0.2"
+version: "0.0.3"
 description: HOPE Badge Board Support Package (BSP)
 url: https://github.com/hope-badge/esp-idf-bsp
 repository: https://github.com/hope-badge/esp-idf-bsp.git

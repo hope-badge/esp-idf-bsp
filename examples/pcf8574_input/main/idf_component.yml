@@ -1,0 +1,6 @@
+description: PCF8574 input reading example
+
+dependencies:
+  hope-badge/hope-badge:
+    version: '*'
+    override_path: ../../../bsp/hope-badge

@@ -16,14 +16,17 @@ jobs:
       matrix:
         espidf_target:
           - esp32c3
+        example_path:
+          - 'examples/basic'
+          - 'examples/pcf8574_input'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-      - name: Build Test Application with ESP-IDF
+      - name: Build ${{ matrix.example_path }}
         uses: espressif/esp-idf-ci-action@v1
         with:
-          esp_idf_version: "latest" # latest is the default version
+          esp_idf_version: v5.5.3
           target: ${{ matrix.espidf_target }}
-          path: 'examples/basic'
+          path: ${{ matrix.example_path }}

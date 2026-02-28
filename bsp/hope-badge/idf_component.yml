@@ -15,11 +15,15 @@ tags:
   - badge
 
 dependencies:
-  idf: ">=5.3"
+  idf: ">=5.4"
 
   hope-badge/vibramotor:
     version: '*'
     override_path: ../../components/vibramotor
+
+  hope-badge/pcf8574:
+    version: '*'
+    override_path: ../../components/pcf8574
 
   button:
     version: "^4"
@@ -35,10 +39,6 @@ dependencies:
 
   i2c_bus:
     version: "^1.1.*"
-    public: true
-
-  ir_learn:
-    version: "^1.0.0"
     public: true
 
 examples:

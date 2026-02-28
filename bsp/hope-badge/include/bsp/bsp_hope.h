@@ -2,7 +2,6 @@
 
 #include "sdkconfig.h"
 #include "driver/gpio.h"
-#include "driver/i2c_master.h"
 
 #include "iot_button.h"
 #include "led_strip.h"

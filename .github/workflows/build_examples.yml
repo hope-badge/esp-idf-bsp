@@ -27,6 +27,6 @@ jobs:
       - name: Build ${{ matrix.example_path }}
         uses: espressif/esp-idf-ci-action@v1
         with:
-          esp_idf_version: "latest" # latest is the default version
+          esp_idf_version: "release/v5.5"
           target: ${{ matrix.espidf_target }}
           path: ${{ matrix.example_path }}

@@ -9,22 +9,34 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_check.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
 #include "pcf8574.h"
-#include <stdbool.h>
-#include <stdint.h>
+
+static const char *TAG = "pcf8574";
+
+/**
+ * @brief Internal device structure for PCF8574
+ */
+typedef struct {
+    i2c_bus_device_handle_t i2c_dev;
+    uint8_t dev_addr;
+} pcf8574_device_t;
 
 pcf8574_handle_t pcf8574_create(i2c_bus_handle_t bus, uint8_t dev_addr)
 {
     pcf8574_device_t *dev = (pcf8574_device_t *)calloc(1, sizeof(pcf8574_device_t));
+    if (dev == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for PCF8574 device");
+        return NULL;
+    }
     dev->i2c_dev = i2c_bus_device_create(bus, dev_addr, i2c_bus_get_current_clk_speed(bus));
     if (dev->i2c_dev == NULL) {
+        ESP_LOGE(TAG, "Failed to create I2C device for PCF8574 at address 0x%02X", dev_addr);
         free(dev);
         return NULL;
     }
     dev->dev_addr = dev_addr;
+    ESP_LOGD(TAG, "PCF8574 created at address 0x%02X", dev_addr);
     return (pcf8574_handle_t)(dev);
 }
 
@@ -41,7 +53,6 @@ esp_err_t pcf8574_delete(pcf8574_handle_t *dev)
     return ESP_OK;
 }
 
-
 esp_err_t pcf8574_read(pcf8574_handle_t dev, uint8_t *data)
 {
     if (dev == NULL || data == NULL) {
@@ -49,15 +60,7 @@ esp_err_t pcf8574_read(pcf8574_handle_t dev, uint8_t *data)
     }
 
     pcf8574_device_t *device = (pcf8574_device_t *)dev;
-
-    uint8_t buf = 0x00;
-    esp_err_t ret = i2c_bus_read_bytes(device->i2c_dev, 0x00, 1, &buf);  // 0x00 is a dummy register
-    if (ret != ESP_OK) {
-        return ESP_FAIL;
-    }
-
-    *data = buf;
-    return ret;
+    return i2c_bus_read_byte(device->i2c_dev, NULL_I2C_MEM_ADDR, data);
 }
 
 esp_err_t pcf8574_write(pcf8574_handle_t dev, uint8_t data)
@@ -67,5 +70,5 @@ esp_err_t pcf8574_write(pcf8574_handle_t dev, uint8_t data)
     }
 
     pcf8574_device_t *device = (pcf8574_device_t *)dev;
-    return i2c_bus_write_byte(device->i2c_dev, 0x00, data);
+    return i2c_bus_write_byte(device->i2c_dev, NULL_I2C_MEM_ADDR, data);
 }
